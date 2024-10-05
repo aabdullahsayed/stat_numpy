@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumPy Statistical Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .results {
+            display: none;
+            margin-top: 20px;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NumPy Statistical Analysis</h1>
+        
+        <div class="input-section">
+            <h3>Enter Numbers</h3>
+            <p>Enter numbers separated by commas (e.g., 1, 2, 3, 4, 5)</p>
+            <textarea id="numbers" placeholder="Enter numbers here..."></textarea>
+            <button onclick="analyzeNumbers()">Analyze</button>
+        </div>
+
+        <div id="results" class="results">
+            <h3>Results</h3>
+            <div class="result-item">Mean: <span id="mean"></span></div>
+            <div class="result-item">Median: <span id="median"></span></div>
+            <div class="result-item">Standard Deviation: <span id="std_dev"></span></div>
+            <div class="result-item">Minimum: <span id="min"></span></div>
+            <div class="result-item">Maximum: <span id="max"></span></div>
+            <div class="result-item">
+                Percentiles:
+                <div>25th: <span id="percentile25"></span></div>
+                <div>50th: <span id="percentile50"></span></div>
+                <div>75th: <span id="percentile75"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeNumbers() {
+            const numbersText = document.getElementById('numbers').value;
+            const numbers = numbersText.split(',').map(n => parseFloat(n.trim()));
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ numbers }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error analyzing numbers: ' + error.message);
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('mean').textContent = data.mean.toFixed(2);
+            document.getElementById('median').textContent = data.median.toFixed(2);
+            document.getElementById('std_dev').textContent = data.std_dev.toFixed(2);
+            document.getElementById('min').textContent = data.min.toFixed(2);
+            document.getElementById('max').textContent = data.max.toFixed(2);
+            document.getElementById('percentile25').textContent = data.percentiles[0].toFixed(2);
+            document.getElementById('percentile50').textContent = data.percentiles[1].toFixed(2);
+            document.getElementById('percentile75').textContent = data.percentiles[2].toFixed(2);
+        }
+    </script>
+</body>
+</html>
